@@ -1,0 +1,47 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="./css/style.css" />
+	<link rel="stylesheet" type="text/css" href="./css/thesis.css" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<div class="content">
+<h2>Sqoop安装</h2>
+<pre>$ yum install -y git
+$ cd /etc/yum.repos.d
+$ wget http://archive.cloudera.com/redhat/cdh/cloudera-cdh3.repo
+$ yum install -y sqoop
+$ yum install -y java-1.7.0-openjdk*</pre>
+<h2>Hive Table</h2>
+<ul>
+	<li>Path: /data/rawlog/log/mysql/zencart/orders/{site}/{day}/{site}_{day}.db.gz </li>
+</ul>
+
+<h2>Sqoop</h2>
+<ul>
+	<li>指定路径</li>
+	<li>按天</li>
+<li>分区</li>
+<li>桶</li>
+</ul>
+
+<h2>Example</h2>
+<dl>
+	<dt>sqoop list-tables</dt>
+	<dd><pre>$ sqoop list-tables --connect jdbc:mysql://vm2/stats --username stats --password stats</pre></dd>
+	
+	<dt>sqoop import</dt>
+	<dd>
+	  <pre>$ sqoop import --direct --append --connect jdbc:mysql://vm2/stats --username stats --password stats --table wa_pv_day</pre>
+	</dd>
+</dl>
+
+<h2>参考文档</h2>
+<ul>
+	<li>http://www.cnblogs.com/L-aho/archive/2012/12/07/2807366.html</li>
+<li>http://itindex.net/detail/43792-sqoop-mysql-hdfs</li>
+</ul>
+
+</div>
+</body>
+</html>

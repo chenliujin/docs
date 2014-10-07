@@ -1,0 +1,17 @@
+.content {
+	margin: 10px;
+	padding: 2em;
+	border: 1px solid #ccc;
+}
+
+.content h1 {
+	font-size: 19px;
+}
+
+.content h2 {
+	font-size: 17px;
+}
+
+.content h3 {
+	font-size: 15px;
+}

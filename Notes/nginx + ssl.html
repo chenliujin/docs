@@ -1,0 +1,186 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="./css/style.css" />
+	<link rel="stylesheet" type="text/css" href="./css/thesis.css" />
+</head>
+<body>
+<div class="content">
+<h1>安装 openssl</h1>
+<pre>$ yum install openssl</pre>
+
+<h1>创建证书</h1>
+<pre>$ cd /etc/pki/CA
+$ /etc/pki/tls/misc/CA -newca<br />
+Enter PEM pass phrase:  123456
+Verifying - Enter PEM pass phrase: 123456
+
+Country Name (2 letter code) [XX]:CN<br>State or Province Name (full name) []:CN<br>Locality Name (eg, city) [Default City]:CN<br>Organization Name (eg, company) [Default Company Ltd]:CN<br>Organizational Unit Name (eg, section) []:CN<br>Common Name (eg, your name or your server's hostname) []:chenliujin.com<br>Email Address []:liujin.chen@qq.com</pre>
+
+<h1>Generate a CSR
+
+
+ (Certificate Signing Request)</h1>
+<h2>方法一：RSA</h2>
+<pre>$ openssl req -nodes -newkey rsa:2048 -keyout domain.key -out domain.csr
+Generating a 2048 bit RSA private key
+....................+++
+...................................................................................+++
+writing new private key to 'domain.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:CN
+State or Province Name (full name) []:CN
+Locality Name (eg, city) [Default City]:CN
+Organization Name (eg, company) [Default Company Ltd]:CN
+Organizational Unit Name (eg, section) []:CN
+Common Name (eg, your name or your server's hostname) []:www.chenliujin.com
+Email Address []:liujin.chen@qq.com
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+</pre>
+
+<h2>方法二：DES</h2>
+<pre>$ openssl genrsa -des3 -out server.key 2048
+Generating RSA private key, 2048 bit long modulus
+........+++
+..............................................+++
+e is 65537 (0x10001)
+Enter pass phrase for server.key:123456 #输入密码
+Verifying - Enter pass phrase for server.key:123456 #输入密码
+
+
+$ openssl req -new  -key server.key -out server.csr
+Enter pass phrase for server.key:123456 #输入密码
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:CN
+State or Province Name (full name) []:CN
+Locality Name (eg, city) [Default City]:CN
+Organization Name (eg, company) [Default Company Ltd]:CN
+Organizational Unit Name (eg, section) []:CN
+Common Name (eg, your name or your server's hostname) []:www.chenliujin.com
+Email Address []:liujin.chen@qq.com
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+$ cp server.csr newreq.pem</pre>
+
+
+
+<h1>对产生的服务器证书进行签证</h1>
+<pre>$ /etc/pki/tls/misc/CA -sign
+$ cp newcert.pem server.crt
+
+</pre>
+
+
+
+<pre>
+openssl genrsa -out server.key 1024
+openssl req -new -key server.key -out server.csr
+openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
+
+</pre>
+
+<h1>COMODO Certificate Installation: Nginx</h1>
+<h2>* https - Nginx</h2>
+<p><a href="https://support.comodo.com/index.php?_m=knowledgebase&_a=viewarticle&kbarticleid=1365&nav=0,96,1,95">https://support.comodo.com/index.php?_m=knowledgebase&amp;_a=viewarticle&amp;kbarticleid=1365&amp;nav=0,96,1,95</a></p>
+
+<h3>证书颁发链</h3>
+<p> 根证书是CA认证中心给自己颁发的证书,是信任链的起始点。安装根证书意味着对这个CA认证中心的信任 。 </p>
+<p>查看进行签证的COMODO证书级别，这里是PositiveSSL，下载对应的PositiveSSL中间证书和根证书，把它们合并到你的证书文件中。</p>
+<p>证书：www.chenliujin.com.cer</p>
+<p>中间证书：
+
+
+ PositiveSSLCA2.crt</p>
+<p>根证书：
+
+
+ AddTrustExternalCARoot.crt</p>
+<p>按上面的顺序合并到 www.chenliujin.cer中，注意去掉多余的空格。</p>
+<pre>$ cat www.chenliujin.com.cer PositiveSSLCA2.crt AddTrustExternalCARoot.crt >> ssl-bundle.crt</pre>
+<pre>$ vim www.chengliujin.com.conf
+server {
+	listen 443;
+	server_name www.chenliujin.com;
+
+	ssl on;
+	ssl_certificate 	/etc/ssl/certs/ssl-bundle.crt;
+	ssl_certificate_key /etc/ssl/private/mysite.key;
+	#enables SSLv3/TLSv1, but not SSLv2 which is weak and should no longer be used.
+	ssl_protocols SSLv3 TLSv1;
+	#Disables all weak ciphers
+	ssl_ciphers ALL:!aNULL:!ADH:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM;
+
+
+}</pre>
+
+
+<h2>* COMODO Root & Intermediate(s)查询</h2>
+<p><a href="https://support.comodo.com/index.php?_m=knowledgebase&_a=viewarticle&kbarticleid=1182">https://support.comodo.com/index.php?_m=knowledgebase&amp;_a=viewarticle&amp;kbarticleid=1182</a></p>
+
+<h2>* COMODO Root & Intermediate(s)下载</h2>
+<p><a href="https://support.comodo.com/index.php?_m=downloads&_a=view&parentcategoryid=1&nav=0">https://support.comodo.com/index.php?_m=downloads&amp;_a=view&amp;parentcategoryid=1&amp;nav=0</a></p>
+
+<h1>Q & A</h1>
+<h2>* sec_error_unknown_issuer</h2>
+<h3>The certificate is not trusted in all web browsers. You may need to install an Intermediate/chain certificate to link it to a trusted root certificate. <a href="http://www.sslshopper.com/ssl-certificate-not-trusted-error.html">Learn more about this error </a>. You can fix this by following <a href="https://support.comodo.com/index.php?_m=knowledgebase&_a=view&parentcategoryid=95&pcid=1&nav=0,96,1">Comodo's Certificate Installation Instructions </a> for your server platform (use <a href="https://support.comodo.com/index.php?_m=knowledgebase&_a=view&parentcategoryid=88&pcid=1&nav=0,96,1">these instructions for InstantSSL </a>). Pay attention to the parts about Intermediate certificates. </h3>
+<p></p>
+
+<h1>参考文献</h1>
+<ul>
+	<li>
+		<h3>Generate a CSR on a Linux server</h3>
+		<p><a href="http://hosting.com/support/ssl/generate-a-csr-on-a-linux-server/">http://hosting.com/support/ssl/generate-a-csr-on-a-linux-server/</a></p>
+	</li>
+	<li>
+		<h3>Check your CSR</h3>
+		<p><a href="https://ssltools.websecurity.symantec.com/checker/views/csrCheck.jsp">https://ssltools.websecurity.symantec.com/checker/views/csrCheck.jsp</a></p>
+	</li>
+	<li>
+		<h3>Check your certificate installation</h3>
+		<p><a href="https://ssltools.websecurity.symantec.com/checker/views/certCheck.jsp">https://ssltools.websecurity.symantec.com/checker/views/certCheck.jsp</a></p>
+	</li>
+	<li>
+		<h3>Moving to a 2048-bit Certificate</h3>
+		<p><a href="http://www.thawte.com/resources/2048-bit-compliance/">http://www.thawte.com/resources/2048-bit-compliance/</a></p>
+	</li>
+	<li>
+		<h3>SSL证书部署指南 - Nginx</h3>
+		<p><a href="http://www.willrey.com/support/SSL_Nginx.html">http://www.willrey.com/support/SSL_Nginx.html</a></p>
+	</li>
+	<li>
+		<h3>Certificate Installation</h3>
+		<p><a href="https://support.comodo.com/index.php?_m=knowledgebase&_a=view&parentcategoryid=95&pcid=1&nav=0,96,1">https://support.comodo.com/index.php?_m=knowledgebase&amp;_a=view&amp;parentcategoryid=95&amp;pcid=1&amp;nav=0,96,1</a></p>
+	</li>
+	<li>
+		<h3>Firefox and SSL: sec_error_unknown_issuer</h3>
+		<p><a href="http://stackoverflow.com/questions/275878/firefox-and-ssl-sec-error-unknown-issuer">http://stackoverflow.com/questions/275878/firefox-and-ssl-sec-error-unknown-issuer</a></p>
+	</li>
+	<li>
+		<h3>SSL Certificate Tools</h3>
+		<p><a href="http://www.sslshopper.com/ssl-certificate-tools.html">http://www.sslshopper.com/ssl-certificate-tools.html</a></p>
+	</li>
+</ul>
+
+</div>
+</body>
+</html>
