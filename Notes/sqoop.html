@@ -11,7 +11,9 @@
 $ cd /etc/yum.repos.d
 $ wget http://archive.cloudera.com/redhat/cdh/cloudera-cdh3.repo
 $ yum install -y sqoop
-$ yum install -y java-1.7.0-openjdk*</pre>
+$ yum install -y java-1.7.0-openjdk*
+$ vim /usr/bin/sqoop
+export HADOOP_HOME=/usr</pre>
 <h2>Hive Table</h2>
 <ul>
 	<li>Path: /data/rawlog/log/mysql/zencart/orders/{site}/{day}/{site}_{day}.db.gz </li>
