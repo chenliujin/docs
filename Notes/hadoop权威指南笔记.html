@@ -1,0 +1,611 @@
+﻿<link rel="stylesheet" type="text/css" href="css/docbook.css" />
+
+<ol>
+	<li><a href="#hadoop-1">初识Hadoop</a></li>
+	<li><a href="#hadoop-2">关于MapReduce</a></li>
+	<li><a href="#hive-01">Hive</a></li>
+	<li><a href="#hadoop-install">安装 Apache Hadoop</a></li>
+	<li><a href="#referer">参考文献</a></li>
+</ol>
+
+<h1 id="hadoop-1">1.初识Hadoop</h1>
+<h2>1.1 数据洪流</h2>
+<p>* 纽约证券交易所每天产生 1TB 的交易数据</p>
+<p>* Facebook 存储着约 100 亿张照片，约 1PB 的存储容量</p>
+<p>* The Internet Archive（互联网档案馆）存储着约 2PB 的数据，并以每月至少 20TB 的速度增长</p>
+<p>* 瑞士日内瓦附件的大型强子对撞机每天产生约 15PB 的数据</p>
+
+<h2>1.2 大批量数据的存储与分析</h2>
+<h3>* 存储（HDFS）</h3>
+<p>并行读取（瓶颈：带宽限制-网络传输速率）。硬件故障（避免数据丢失的常用方法是使用备份）。</p>
+<h3>* 分析（MapReduce）</h3>
+<p>大多数分析任务需要以某种方式结合大部分数据共同完成分析任务，	当这些数据分开存储的时候如何处理并保证其正确性？</p>
+<p>在大规模分布式计算环境下，协调各进程间的执行是一个很大的挑战。最困难的是合理地处理系统部分失效问题--在不知道一个远程进程失效的情况下，同时还要继续完成整个计算。</p>
+<h3>* MapReduce 如何处理系统部分失效问题？</h3>
+<p>MapReduce 采用了无共享（shared-nothing）框架，所以 MapReduce 才能够实现失败检测，这意味着各个任务之间彼此独立，从程序员的角度看，任务的执行顺序是无关紧要的（失败了可再次运行，直至正确，对结果无影响）。MapReduce 系统本身控制 mapper 的输出结果传给 reducer 的过程，进程失效时，重新运行 reducer 比重新运行 mapper 更需要格外小心，因为 reducer 需要获取必要的 mapper 的输出结果。如果没有获得 mapper 的输出结果，必须运行相关的 mapper 重新生成输出结果。</p>
+<h2>1.3 Hadoop</h2>
+<p>Hadoop 是一个可靠的共享存储和分析系统。HDFS 实现存储，而 MapReduce 实现分析处理。</p>
+<h3>* Hadoop 起源</h3>
+<p>Hadoop 起源于 Apache Nutch，一个开源的网络搜索引擎。</p>
+<p>HDFS：GFS -&gt; NDFS -&gt; HDFS。谷歌的分布式文件系统（GFS）或类似的架构，可以解决搜索引擎在网页爬取和索引过程中产生的超大文件的存储需求，且能够节省系统管理（如管理存储节点）所花的大量时间。NDFS 是基于该架构的开源实现，最终改名为HDFS。在谷歌发表 MapReduce 系统后，Nutch 的开发人员在 Nutch 上实现了一个 MapReduce 系统，并将所有的主要算法进行移植，在 NDFS 上运行 MapReduce 。</p>
+<p>在 2006 年 2 月，NDFS 和 MapReduce 移除 Nutch 成为 Lucene 的一个子项目，这就是 Hadoop。</p>
+<h2>1.4 与关系型数据库管理系统的对比</h2>
+<p>MapReduce 比较适合以批处理的方式分析整个数据集的问题，尤其是即席分析。（一次写入，多次读取，数据分析，数据挖掘）</p>
+<p>RDBMS 适用于“点查询”（point query）和更新，数据集被索引后，数据库系统能够提供低延迟的数据检索和快速的少量数据更新。（多次读写-更新频繁，数据管理-增删改）</p>
+
+<h1 id="hadoop-2">2.关于MapReduce</h1>
+<p>MapReduce 是一种可用于数据处理的编程模型。MapReduce 程序本质上是并行运行的，因此可以将大规模的数据分析任务交给一个拥有足够多机器的运营商。</p>
+
+<h2>2.1 使用Hadoop分析数据</h2>
+<h3>* map阶段和reduce阶段</h3>
+<p>MapReduce 任务过程被分为两个处理阶段：map 阶段和 reduce 阶段。每个阶段都以键/值对作为输入和输出，并由程序员选择它们的类型。</p>
+<p>map 函数只是一个数据准备阶段，通过这种方式来准备数据，使 reduce 函数能在该准备数据上继续处理。</p>
+<h3>* 一个气象数据的例子</h3>
+<p>任务：每年全球气温的最高记录是多少？（时间跨度：一个世纪）</p>
+<p>map 阶段的输入时原始的 NCDC 数据，行偏移量作为键，此处可忽略。</p>
+<p>(0, 006701199099999<strong>1950</strong>051507004...99999N9+<strong>00001</strong>+999...)</p>
+<p>(100, 004301199099999<strong>1950</strong>051507004...99999N9+<strong>00221</strong>+999...)</p>
+<p>(328, 004301199099999<strong>1950</strong>051507004...99999N9-<strong>00111</strong>+999...)</p>
+<p>map 函数的功能仅限于提取年份和气温信息，并将它们作为输出。</p>
+<p>(1950, 0)</p>
+<p>(1950, 22)</p>
+<p>(1950, -11)</p>
+<p>(1949, 111)</p>
+<p>(1949, 78)</p>
+<p>map 函数的输出经由 MapReduce 框架处理后发送到 reduce 函数，在这里为根据键/值对进行排序和分组。</p>
+<p>(1949, [111, 78])</p>
+<p>(1950, [0, 22, -11])</p>
+<p>reduce 函数的功能是遍历整个输入找出最大的值。</p>
+<p>(1949, 111)</p>
+<p>(1950, 22)</p>
+<p><img src="./images/hadoop-01.png" /></p>
+<h2>2.2 MapReduce 在分布式文件系统中如何工作（怎样解决系统进程部分失效问题？）</h2>
+<p>当我们把数据存储在分布式文件系统中时，允许 Hadoop 将 MapReduce 计算移到存储有部分数据的各台机器上。</p>
+
+<h3>* 数据流</h3>
+<p>MapReduce 作业（job）是客户端需要执行的一个工作单元：它包括输入数据、MapReduce 程序和配置信息。Hadoop 将作业分成若干个小任务（task） 来执行，其中包括两类任务：map 任务和 reduce 任务。</p>
+<p>有两类节点控制着作业执行过程：一个 jobtracker 及一系列 tasktracker。jobtracker 通过调度 tasktracker 上运行的任务，来协调所有运行在系统上作业。tasktracker在运行任务的同时将运行进度报告发送给 jobtracker, jobtracker 由此记录每项作业任务的整体进度情况。如果其中一个任务失败，jobtracker 可以去另外一个 tasktracker 节点上重新调度该任务。</p>
+<p>Hadoop 将 MapReduce 的输入数据划分成等长的小数据块，成为<strong>输入分片（input split）</strong>或简称分片。Hadoop 为每个分片构建一个 map 任务，并由该任务来运行用户自定义的 map 函数从而处理分片中的每条记录。map 任务将其输出写入本地硬盘，而非 HDFS。</p>
+<p>Hadoop 在存储有输入数据（HDFS 中数据）的节点上运行 map 任务，可以获得最佳性能。这就是所谓的<strong>数据本地化优化</strong>（data locality optimization）。</p>
+<p>reduce 任务并不具备数据本地化的优势--单个 reduce 任务的输入通常来自于所有 mapper 的输出。因此，排过序的 map 输出需通过网络传输发送到运行 reduce 任务的节点。数据在 reduce 端合并，然后由用户定义的 reduce 函数处理。reduce 的输出通常存储在 HDFS 中以实现可靠存储。</p>
+<h3>* 输入分片如何切分？</h3>
+<p>对于大多数作业来说，一个合理的分片大小趋向于 HDFS 的一个块的大小，默认是 64MB。</p>
+<h3>* 只有一个 reduce 任务的数据流图</h3>
+<p>虚线框表示节点，虚线箭头表示节点内部的数据传输，而实线箭头表示节点之间的数据传输。</p>
+<p><img src="./images/hadoop-02.png" /></p>
+<h3>* 多个 reduce 任务的数据流图</h3>
+<p>map 任务和 reduce 任务之间的数据流成为 shuffle（混洗） ，因为每个 reduce 任务的输入都来自多个 map 任务。</p>
+<p><img src="./images/hadoop-03.png" /></p>
+<h3>* 没有 reduce 任务的数据流图</h3>
+<p>此时，数据处理完全并行。</p>
+<p><img src="./images/hadoop-04.png" /></p>
+<h3>* combiner</h3>
+<p>集群上的可用带宽限制了 MapReduce 作业的数量，因此最重要的一点是尽量避免 map 任务和 reduce 任务之的数据传输。Hadoop 允许用户针对 map 任务的输出指定一个合并函数--合并函数的输出作为 reduce 函数的输入。但是在 MapReduce 作业中使用 combiner 是需要慎重考虑的。</p>
+<h1 id="hadoop-install">3.Hadoop 分布式文件系统</h1>
+<p>当数据集的大小超过一台独立物理计算机的存储能力时，就有必要对其进行分区（partition）并存储到若干台单独的计算机上。管理网络中跨多台计算机存储的文件系统称为分布式文件系统（distributed filesystem）。</p>
+<h2>3.1 HDFS</h2>
+<h3>* 数据块（block）</h3>
+<p>默认 64M。与单一磁盘上的文件系统相似，HDFS 上的文件也被划分为块大小的多个分块（chunk），作为独立的存储单元。但与其它文件系统不同的是，HDFS 中小于一个块大小的文件不会占据整个块的空间。</p>
+<h3>* namenode</h3>
+<p>namenode 管理文件系统的命名空间。它维护着文件系统树及整棵树内的所有文件和目录。</p>
+<h3>* secondary namenode</h3>
+<p>辅助 namenode</p>
+<h3>* datanode</h3>
+<p>datanode 是文件系统的工作节点。 </p>
+<h3>* jobtracker</h3>
+<h3>* tasktracker </h3>
+<h1>4.安装 Apache Hadoop</h1>
+<h2>1) 安装 JAVA</h2>
+<pre>
+$ yum install -y java, java-1.7.0-openjdk
+$ java -version
+java version "1.7.0_51"
+OpenJDK Runtime Environment (rhel-2.4.4.1.el6_5-x86_64 u51-b02)
+OpenJDK 64-Bit Server VM (build 24.45-b08, mixed mode)
+</pre>
+
+<h2>2) 安装 Apache Hadoop</h2>
+<h3>* 安装</h3>
+<pre>
+$ wget http://mirror.esocc.com/apache/hadoop/common/hadoop-1.1.2/hadoop-1.1.2-1.x86_64.rpm
+$ rpm -ivh hadoop-1.1.2-1.x86_64.rpm</pre>
+<h3>* 环境变量</h3>
+<pre>$ vim /etc/hadoop/hadoop-env.sh
+将 export JAVA_HOME=/usr/java/default 改为 export JAVA_HOME=/usr
+
+Because:
+$ vim /usr/bin/hadoop
+...
+JAVA=$JAVA_HOME/bin/java
+...</pre>
+<h3>* 测试</h3>
+<pre>$ hadoop version</pre>
+<h2>3) 配置</h2>
+
+<h3>* 配置 SSH</h3>
+<p>生成秘钥对，设置无验证 SSH 登陆，以便 Hadoop 启动集群主机集的守护进程。</p>
+<pre>$ ssh-keygen -t rsa -p '' -f ~/.ssh/id_rsa
+$ cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys
+$ ssh localhost</pre>
+<h3>* 独立模式（standalone 或 local mode）</h3>
+<p>无需运行任何守护进程（daemon），适合在开发阶段测试和调试 MapReduce 程序。</p>
+<h3>* 伪分布模式（pseudo-distributed model）</h3>
+<p>Hadoop 守护进程运行在本地机器上，模拟一个小规模的集群。</p>
+<pre>
+$ vim /etc/hadoop/hadoop-env.sh
+  export JAVA_HOME=/usr
+
+$ vim /etc/hadoop/core-site.xml
+
+&lt;configuration&gt;
+    &lt;property&gt;?
+        &lt;name&gt;fs.default.name&lt;/name&gt;?
+        &lt;value&gt;hdfs://localhost/&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+
+$ vim /etc/hadoop/hdfs-site.xml
+
+&lt;configuration&gt;
+    &lt;property&gt; 
+        &lt;name&gt;dfs.replication&lt;/name&gt; 
+        &lt;value&gt;1&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+
+$ vim /etc/hadoop/mapred-site.xml 
+
+&lt;configuration&gt;
+    &lt;property&gt;?
+        &lt;name&gt;mapred.job.tracker&lt;/name&gt;?
+        &lt;value&gt;localhost:8021&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+</pre>
+<h3>* 全分布模式（fully distributed model）</h3>
+<p>Hadoop 守护进程运行在一个集群上。</p>
+<h2>4) 格式化 HDFS 文件系统</h2>
+<p>在使用 Hadoop 之前，必须格式化一个全新的 HDFS 安装。通过创建存储目录和 namenode 持久化数据结构的初始版本，格式化过程创建了一个空的文件系统，格式化过程并不涉及 datanode。</p>
+<pre>$ hadoop namenode -format
+14/02/12 01:35:29 INFO namenode.NameNode: STARTUP_MSG:
+/************************************************************
+STARTUP_MSG: Starting NameNode
+STARTUP_MSG:   host = vm1/127.0.0.1
+STARTUP_MSG:   args = [-format]
+STARTUP_MSG:   version = 1.2.1
+STARTUP_MSG:   build = https://svn.apache.org/repos/asf/hadoop/common/branches/branch-1.2 -r 1503152; compiled by 'mattf' on Mon Jul 22 15:27:42 PDT 2013
+STARTUP_MSG:   java = 1.7.0_51
+************************************************************/
+14/02/12 01:35:30 INFO util.GSet: Computing capacity for map BlocksMap
+14/02/12 01:35:30 INFO util.GSet: VM type       = 64-bit
+14/02/12 01:35:30 INFO util.GSet: 2.0% max memory = 129761280
+14/02/12 01:35:30 INFO util.GSet: capacity      = 2^18 = 262144 entries
+14/02/12 01:35:30 INFO util.GSet: recommended=262144, actual=262144
+14/02/12 01:35:30 INFO namenode.FSNamesystem: fsOwner=root
+14/02/12 01:35:30 INFO namenode.FSNamesystem: supergroup=supergroup
+14/02/12 01:35:30 INFO namenode.FSNamesystem: isPermissionEnabled=true
+14/02/12 01:35:30 INFO namenode.FSNamesystem: dfs.block.invalidate.limit=100
+14/02/12 01:35:30 INFO namenode.FSNamesystem: isAccessTokenEnabled=false accessKeyUpdateInterval=0 min(s), accessTokenLifetime=0 min(s)
+14/02/12 01:35:30 INFO namenode.FSEditLog: dfs.namenode.edits.toleration.length = 0
+14/02/12 01:35:30 INFO namenode.NameNode: Caching file names occuring more than 10 times
+14/02/12 01:35:30 INFO common.Storage: Image file /tmp/hadoop-root/dfs/name/current/fsimage of size 110 bytes saved in 0 seconds.
+14/02/12 01:35:30 INFO namenode.FSEditLog: closing edit log: position=4, editlog=/tmp/hadoop-root/dfs/name/current/edits
+14/02/12 01:35:30 INFO namenode.FSEditLog: close success: truncate to 4, editlog=/tmp/hadoop-root/dfs/name/current/edits
+14/02/12 01:35:30 INFO common.Storage: Storage directory /tmp/hadoop-root/dfs/name has been successfully formatted.
+14/02/12 01:35:30 INFO namenode.NameNode: SHUTDOWN_MSG:
+/************************************************************
+SHUTDOWN_MSG: Shutting down NameNode at vm1/127.0.0.1
+************************************************************/
+</pre>
+<h2>5) 启动和终止守护进程</h2>
+<h3>* 启动</h3>
+<pre>
+$ chmod a+x /usr/sbin/start-all.sh
+$ chmod a+x /usr/sbin/start-dfs.sh
+$ chmod a+x /usr/sbin/slaves.sh
+$ chmod a+x /usr/sbin/start-mapred.sh
+
+$ /usr/sbin/start-all.sh</pre>
+<h3>* 终止</h3>
+<pre>$ chmod a+x /usr/sbin/stop-all.sh
+$ chmod a+x /usr/sbin/stop-dfs.sh
+$ chmod a+x /usr/sbin/stop-mapred.sh
+
+$ /usr/sbin/stop-all.sh</pre>
+<h3>* 测试</h3>
+<pre>$ hadoop dfsadmin -report</pre>
+<h1>5.构建 Hadoop 集群</h1>
+<h2>a.集群的构建和安装</h2>
+<h3>* 安装 JAVA</h3>
+<pre>$ java -version</pre>
+<h3>* 创建 Hadoop 用户</h3>
+<pre>$ useradd hadoop
+$ groupadd hadoop</pre>
+<h3>* 安装 Hadoop</h3>
+<p>在集群的主机上进行安装。</p>
+<pre> $ chmod -R hadoop:hadoop hadoop-x.y.z</pre>
+<h2>b.SSH 配置</h2>
+<p>Hadoop 控制脚本依赖 SSH 来执行针对整个集群的操作。 </p>
+<pre>$ ssh-keygen -t rsa -f ~/.ssh/id_rsa
+$ cat ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys</pre>
+<h2>c.Hadoop 配置</h2>
+<h3>* Hadoop 配置文件</h3>
+<pre>1.hadoop-env.sh
+2.core-site.xml
+3.hdfs-site.xml
+4.mapred-site.xml
+5.masters
+6.slaves</pre>
+<h3>* 控制脚本</h3>
+<p>Hadoop 在主节点上运行指令来启动或终止集群内的守护进程。</p>
+<p>配置文件 masters 和 slaves 记录了集群内的所有机器。各文件逐行记录一些机器的名称或 IP 地址。</p>
+<p>masters： 配置运行 secondary namenode 的所有机器</p>
+<p>slaves：配置运行 datanode 和 tasktracker 的所有机器</p>
+<p>1. 在 namenode 机器上运行 HDFS 控制脚本。masters 文件包含 secondary namenode 的地址。</p>
+<p>2. 在 jobtracker 机器上运行 MapReduce 控制脚本。</p>
+<h3>* start-dfs.sh</h3>
+<p>用于启动集群内所有的 HDFS 守护进程。</p>
+<p>1. 在本地机器上启动一个 namenode（脚本所运行的机器）</p>
+<p>2. 在 slaves 文件中记录的各个机器上启动一个 datanode</p>
+<p>3. 在 masters 文件中所记录的各机器上启动一个 secondary namenode</p>
+<h3>* start-mapred.sh</h3>
+<p>用于启动集群中所有 MapReduce 守护进程。</p>
+<p>1. 在本地机器上启动一个 jobtracker</p>
+<p>2. 在 slaves 文件列举的每台机器上启动一个 tasktracker</p>
+<h1>4.数据操作</h1>
+<h2>数据存储</h2>
+<p>数据如何保存到Hadoop中?</p>
+
+<h3>MySQL -> Hadoop</h3>
+<pre>
+$ sqoop import --connect jdbc:mysql://localhost/hadoopguide --table widgets -m 1
+$ hadoop fs -cat widgets/part-m-00000
+</pre>
+
+<h3>File -> Hadoop</h3>
+<pre>
+$ hadoop fs -mkdir test
+$ hadoop fs -chmod a+w test
+$ hadoop fs -chmod g+w test
+$ hadoop fs -put a.txt test
+$ hadoop dfs -ls test
+</pre>
+
+<h2>分析</h2>
+<pre>
+$ hadoop jar /usr/share/hadoop/hadoop-examples-1.1.2.jar wordcount test output
+$ hadoop dfs -cat /user/root/output/part-r-00000
+</pre>
+
+<h1 id="hive-01">6.Hive</h1>
+<p>Hive 是一个基于 Hadoop 的数据仓库工具，它管理 HDFS 中存储的数据，可以将结构化的数据文件映射为一张数据表，并提供基于 SQL 的查询语言（运行时由引擎翻译成 MapReduce 作业）用以查询数据。 </p>
+<p>Hive 是应 Facebook 每天产生的海量新兴网络数据进行管理和学习的需求而产生和发展的。</p>
+<p>Hive 的设计目的是让精通 SQL 技能（但 Java 编程技能相对较弱）的分析师能够在 Facebook 存放在 HDFS 的大规模数据集上运行查询。</p>
+<h2>6.1 安装</h2>
+<p>下载地址：http://www.apache.org/dyn/closer.cgi/hive/，直接解压到指定的路径即可。</p>
+<pre>
+$ java -version
+
+$ tar xzvf hive-0.11.0.tar.gz
+$ mv hive-0.11.0 /opt/hive
+</pre>
+<p><strong>* 设置环境变量</strong></p>
+<pre>
+$ vim ~/.bashrc
+export HIVE_INSTALL=/opt/hive
+export PATH=$PATH:$HIVE_INSTALL/bin
+
+$ source ~/.bashrc
+
+$ hive
+</pre>
+
+<h2>6.2 配置</h2>
+<pre>
+$ hive --config /opt/hive/conf
+$ hive -hiveconf fs.default.name=localhost -hiveconf mapred.job.tracker=localhost:8021
+
+hive &gt; SET hive.enforce.bucketing=true;
+</pre>
+
+<h3>* 查看配置</h3>
+<p>不带参数的SET会列出Hive的所有配置信息。</p>
+<pre>hive &gt; SET;
+hive &gt; SET -v; #列出系统中的所有属性
+hive &gt; SET fs.default.name;
+hive &gt; SET mapred.job.tracker;
+hive &gt; SET hive.metastore.warehouse.der;</pre>
+
+<h3>* 开启日志</h3>
+<pre>$ hive -hiveconf hive.root.logger=DEBUG,console</pre>
+
+<h3>* 配置优先级</h3>
+<ol>
+	<li>Hive SET命令</li>
+	<li>命令行-hiveconf选项</li>
+	<li>hive-site.xml</li>
+	<li>hive-default.xml</li>
+	<li>hadoop-site.xml</li>
+	<li>hadoop-default.xml</li>
+</ol>
+<h3>* hive-site.xml</h3>
+<pre>&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;javax.jdo.option.ConnectionURL&lt;/name&gt;
+        &lt;value&gt;jdbc:mysql://192.168.0.25:3306/metastore_db?createDatabaseIfNotExist=true&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;javax.jdo.option.ConnectionDriverName&lt;/name&gt;
+        &lt;value&gt;com.mysql.jdbc.Driver&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;javax.jdo.option.ConnectionUserName&lt;/name&gt;
+        &lt;value&gt;hive&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;javax.jdo.option.ConnectionPassword&lt;/name&gt;
+        &lt;value&gt;123456&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;hive.aux.jars.path&lt;/name&gt;
+        &lt;value&gt;file:///opt/hive/lib/hive-contrib-0.11.0.jar&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;</pre>
+<h3>* mysql jar</h3>
+<h3>* mysql permission</h3>
+<h2>6.3 常用命令</h2>
+<p>HiveSQL 一般是大小写无关的（除了字符串比较外），命令必须以分号结束，以告诉 Hive 立即执行该命令。</p>
+<pre>
+$ hive -f script.txt
+$ hive -e "SHOW TABLES"
+$ hive -S
+$ hive 
+hive &gt; show tables;</pre>
+
+<h2>6.4 Hive服务</h2>
+<h3>* hiveserver</h3>
+<p>让 Hive 以提供 Trift 服务的服务器形式运行，允许用不同语言编写的客户端进行访问。</p>
+<h3>* 开启服务</h3>
+<pre>$ hive --service hiveserver</pre>
+
+<h2>6.5 Hive客户端</h2>
+<h3>* Hive Thrift Client</h3>
+<p>Hive Thrift 客户端简化了在多种编程语言中运行 Hive 命令。Hive 的 Thrift 绑定支持 C++、Java、PHP、Python 和 Ruby。 </p>
+<h3>* Hive JDBC Driver</h3>
+<h3>* Hive ODBC Driver</h3>
+
+<h2>6.6 metastore</h2>
+<p>存储表模式及相对应的 Hadoop 文件等信息。</p>
+
+<h3>* Embedded metastore configuration</h3>
+<p>默认情况下，metastore 服务和 Hive 服务运行在同一个 JVM 中，它包含一个内嵌的以本地磁盘作为存储的 Derby 数据库实例。此时，你只能为每个 metastore 打开一个 Hive 会话。</p>
+<pre>hive &gt; SET javax.jdo.option.ConnectionURL;
+javax.jdo.option.ConnectionURL=jdbc:derby:;databaseName=metastore_db;create=true</pre>
+
+<h3>* Local metastore</h3>
+<p>使用独立的数据库以支持多会话（以及多用户）。</p>
+<pre>
+$ touch /opt/hive/conf/hive-site.xml
+
+&lt;configuration&gt;
+	&lt;property&gt;
+		&lt;name&gt;javax.jdo.option.ConnectionURL&lt;/name&gt;
+		&lt;value&gt;jdbc:mysql://192.168.0.250:3306/metastore_db?createDatabaseIfNotExist=true&lt;/value&gt;
+	&lt;/property&gt;
+	&lt;property&gt;
+		&lt;name&gt;javax.jdo.option.ConnectionDriverName&lt;/name&gt;
+		&lt;value&gt;com.mysql.jdbc.Driver&lt;/value&gt;
+	&lt;/property&gt;
+	&lt;property&gt;
+		&lt;name&gt;javax.jdo.option.ConnectionUserName&lt;/name&gt;
+		&lt;value&gt;hive&lt;/value&gt;
+	&lt;/property&gt;
+	&lt;property&gt;
+		&lt;name&gt;javax.jdo.option.ConnectionPassword&lt;/name&gt;
+		&lt;value&gt;123456&lt;/value&gt;
+	&lt;/property&gt;
+&lt;/configuration&gt;
+
+$ cp mysql-connector-java-5.1.25-bin.jar /opt/hive/lib/
+
+mysql &gt; grant all privileges on *.* to 'hive'@'%' identified by '123456';
+mysql &gt; flush privileges;
+mysql &gt; source /opt/hive/scripts/metastore/upgrade/mysql/hive-schema-0.10.0.mysql.sql
+</pre>
+
+<h3>* Remote metastore</h3>
+<pre>hive &gt; SET hive.metastore.local
+false
+
+hive &gt; SET hive.metastore.uris
+thrift://host:port,...</pre>
+<p><img src="./images/hadoop-05.png" /></p>
+
+<h2>6.7 HiveSQL </h2>
+<p>HiveSQL 是 SQL 的方言（dialect），它并不完全支持 SQL-92 标准。</p>
+<h3>* 复杂数据类型</h3>
+<pre>hive &gt; CREATE TABLE complex (
+     &gt;     col1 ARRAY&lt;INT&gt;,
+     &gt;     col2 MAP&lt;STRING, INT&gt;,
+     &gt;     col3 STRUCE&lt;a:STRING, b:INT, c:DOUBLE&gt;
+     &gt; );
+hive &gt; SELECT col1[0]，col2['b'], col3.c FROM complex;</pre>
+<h3>* 函数</h3>
+<pre>hive &gt; SHOW FUNCTIONS;
+hive &gt; DESCRIBE FUNCTION length;</pre>
+<h2>6.8 托管表和外部表</h2>
+<h3>* 托管表（managed table）</h3>
+<p>数据归Hive管理，存放在/user/hive/warehouse/table。</p>
+<pre>hive &gt; CREATE TABLE test(id INT, col1 STRING)
+     &gt; ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+hive &gt; LOAD DATA <strong>LOCAL</strong> INPATH '/tmp/test.txt' OVERWRITE INTO TABLE test;
+hive &gt; LOAD DATA        INPATH '/user/root/test/*' OVERWRITE INT TABLE test;
+
+$ hadoop fs -ls /user/hive/warehouse/test
+</pre>
+
+<h3>* 外部表（external table）</h3>
+<p>数据不归Hive管理，数据存放路径需在定义表时指定。</p>
+<pre>hive &gt; CREATE <strong>EXTERNAL</strong> TABLE test (value STRING)
+     &gt; LOCATION '/user/root/test';
+hive &gt; LOAD DATA INPATH '/user/root/a.txt' OVERWRITE INTO TABLE test;
+hive &gt; LOAD DATA LOCAL INPATH '/tmp/a.txt' OVERWRITE INTO TABLE test;</pre>
+
+<h3>* 托管表和外部表的区别</h3>
+<p>删除表时，托管表会连数据一起删除，外部表不会。</p>
+<pre>
+hive &gt; DROP TABLE test;
+
+$ hadoop fs -ls /user/hive/warehouse/test #托管表数据存放路径
+$ hadoop fs -ls /user/root/test #外部表数据存放路径</pre>
+
+<h2>6.9 分区和桶</h2>
+<h3>* 分区（partition）</h3>
+<p>使用分区可以加快数据分片（slice）的查询速度。</p>
+<p>根据分区条件把文件放到分区文件夹中，相当于根据分区条件进行了一次过滤，那么根据分区进行条件查询会比未分区快。</p>
+<p>使用分区时相关的列会转换成对应的目录名称，数据文件不再保存分区列（partition column）的数据，即 PARTITION BY 子句中的列定义是表中正式的列，它的值就是目录名。</p>
+<pre>
+hive &gt; CREATE TABLE test (col2 STRING, col4 STRING) 
+     &gt; PARTITIONED BY (col1 STRING, col3 STRING)
+     &gt; ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+hive &gt; LOAD DATA LOCAL INPATH '/tmp/test.txt' INTO TABLE test
+     &gt; PARTITION (col1='a', col3='c');
+hive &gt; SHOW PARTITIONS test;</pre>
+
+
+<h3>* 桶（bucket）</h3>
+<p>为数据提供额外的结构以获得更高效的查询处理。</p>
+<p>连接两个在（包含连接列的）相同列上划分了桶的表，可以使用 map 端连接（map-side join）高效地实现。</p>
+<p>我们使用 CLUSTERED BY 子句来指定划分桶所用的列和要划分的桶的个数：</p>
+<pre>
+hive &gt; SET hive.enforce.bucketing=true;
+hive &gt; CREATE TABLE bucketed_users(id INT, name STRING)
+     &gt; CLUSTERED BY (id) INTO 4 BUCKETS;
+hive &gt; CREATE TABLE bucketed_users(id INT, name STRING)
+     &gt; CLUSTERED BY (id) SORTED BY (id ASC) INTO 4 BUCKETS;
+hive &gt; INSERT OVERWRITE TABLE bucketed_users
+     &gt; SELECT * FROM users;
+hive &gt; SELECT * FROM bucketed_users
+     &gt; TABLESAMPLE(BUCKET 2 OUT OF 4 ON day); #取其中1桶的数据
+hive &gt; SELECT * FROM bucketed_users
+     &gt; TABLESAMPLE(BUCKET 1 OUT OF 2 ON day); #取一半的数据</pre>
+<h2>6.10 存储格式</h2>
+<p>Hive 从两个维度对表的存储进行管理： “行格式”（row format）和“文件格式”（file format）。</p>
+<p>行格式指行和一行中的字段如何存储。Hive 中的行格式由 SerDe 定义。SerDe 是 “序列化和反序列化工具” （Serializer - Deserializer）的合成词。 </p>
+<h3>* 默认存储格式：分隔的文本（delimited text）</h3>
+<pre>hive &gt; CREATE TABLE test(id INT, value STRING)
+     &gt; ROW FORMAT DELIMITED 
+     &gt; FIELDS TERMINATED BY '\t';</pre>
+<h3>* RegexSerDe</h3>
+<pre> hive &gt; CREATE TABLE stations (usaf STRING, wban STRING, name STRING)
+      &gt; ROW FORMAT SERDE 'org.apache.hadoop.hive.contrib.serde2.RegexSerDe'
+      &gt; WITH SERDEPROPERTIES (
+      &gt;     &quot;input.regex&quot; = &quot;(\\d{6})(\\d{5})(.{29}) .*&quot;
+      &gt; );</pre>
+<h3>* Apache Access Log</h3>
+<pre>hive &gt; CREATE TABLE apache_access_log (  
+     &gt;     host STRING,  
+     &gt;     identity STRING,
+     &gt;     user STRING,
+     &gt;     time STRING,  
+     &gt;     request STRING,  
+     &gt;     status STRING,  
+     &gt;     size STRING,  
+     &gt;     referer STRING,  
+     &gt;     agent STRING
+     &gt; )  
+     &gt; ROW FORMAT SERDE 'org.apache.hadoop.hive.contrib.serde2.RegexSerDe'  
+     &gt; WITH SERDEPROPERTIES (  
+     &gt;     "input.regex" = "([^ ]*) ([^ ]*) ([^ ]*) (-|\\[[^\\]]*\\]) ([^ \"]*|\"[^\"]*\") (-|[0-9]*) (-|[0-9]*)(?: ([^ \"]*|\".*\") ([^ \"]*|\".*\"))?",  
+     &gt;     "output.format.string" = "%1$s %2$s %3$s %4$s %5$s %6$s %7$s %8$s %9$s"  
+     &gt; )  
+     &gt; STORED AS TEXTFILE; 
+hive &gt; LOAD DATA LOCAL INPATH '/var/log/apache/access_log' INTO TABLE apache_access_log;
+hive &gt; select * from apache_access_log;</pre>
+<h2>6.11 导入数据</h2>
+<h3>* INSERT OVERWRITE TABLE</h3>
+<pre>hive &gt; INSERT OVERWRITE TABLE target
+     &gt; SELECT * FROM source;
+
+hive &gt; INSERT OVERWRITE TABLE target
+     &gt; PARTITION (dt='2013-07-18')
+     &gt; SELECT col1, col2 FROM source;</pre>
+<h3>* 动态分区插入</h3>
+<pre>hive &gt; SET hive.exec.dynamic.partition=true;
+hive &gt; INSERT OVERWRITE TABLE target
+     &gt; PARTITION (dt)
+     &gt; SELECT col1, col2, dt FROM source;</pre>
+<h3>* 多表插入</h3>
+<pre>hive &gt; FROM srouce
+     &gt; INSERT OVERWRITE TABLE target1
+     &gt; SELECT col1, COUNT(col2) GROUP BY col1
+     &gt; INSERT OVERWRITE TABLE target2
+     &gt; SELECT col1, COUNT(DISTINCT col2) GROUP BY col1
+     &gt; INSERT OVERWRITE TABLE target3
+     &gt; SELECT col1, COUNT(col2) WHERE col3='2013' GROUP BY col1;</pre>
+<h3>* CREATE TABLE ... AS SELECT</h3>
+<p>CTAS 是原子操作，因此如果 SELECT 查询由于某种原因失败，是不会创建新表的。</p>
+<pre>hive &gt; CREATE TABLE target
+     &gt; AS 
+     &gt; SELECT col1, col2 FROM source;</pre>
+<h2>6.12 查询</h2>
+<h3>* 内连接</h3>
+<pre>hive &gt; SELECT *
+     &gt; FROM sales
+     &gt; JOIN things ON (sales.id = things.id);</pre>
+<h3>* 外连接</h3>
+<pre>hive &gt; SELECT * 
+     &gt; FROM sales
+     &gt; LEFT OUTER JOIN things ON (sales.id = things.id);
+
+hive &gt; SELECT *
+     &gt; FROM sales
+     &gt; RIGHT OUTER JOIN things ON (sales.id = things.id);
+
+hive &gt; SELECT * 
+     &gt; FROM sales
+     &gt; FULL OUTER JOIN things ON (sales.id = things.id);</pre>
+<h3>* 半连接</h3>
+<pre>hive &gt; SELECT * 
+     &gt; FROM things
+     &gt; LEFT SEMI JOIN sales ON (sales.id = things.id);</pre>
+<h3>* map 连接</h3>
+<pre>hive &gt; SELECT /*+ MAPJOIN(things) */ sales.*, things.*
+     &gt; FROM sales
+     &gt; JOIN things ON (sales.id = things.id);</pre>
+<h2>6.13 Functions</h2>
+<h3>* to_date</h3>
+<pre>hive &gt; select to_date(created_at) from access_log;</pre>
+
+<h2>6.14 FAQ</h2>
+<h3>* 如何处理分片日志？</h3>
+<p>Hive支持文件夹的方式，将文件夹内的所有文件，都load到指定表中。HDFS会将文件系统内的某文件夹路径内的文件，分散到不同的实际物理地址中。这样，在数据量很大的时候，Hive支持读取多个文件载入，而不需要限定在唯一的文件中。</p>
+<pre>hive > LOAD DATA LOCAL INPATH '/tmp/test/*.txt' OVERWRITE INTO TABLE test PARTITION（pt=’xxxx）;</pre>
+
+<h1>7.缺点</h1>
+<ul>
+	<li>单点故障</li>
+    <li>用于数据分析,数据交互弱：修改和删除?</li>
+</ul>
+
+<h1>8.FAQ</h1>
+
+
+<h2>* 集群中的datanode存储空间如何分配？</h2>
+
+<h1 id="referer">参考文献</h1>
+<ol>
+	<li>云计算关键技术及基于Hadoop的云计算模型研究: http://wenku.baidu.com/view/5748b911a21614791711287c.html</li>
+	<li>jdk安装：http://mr-know.blog.163.com/blog/static/2862703201298115242492/</li>
+	<li>启动异常：http://hi.baidu.com/xixitie/item/60da2daa926537ab29ce9d9a</li>
+	<li>Hadoop之安装配置及测试案例:http://www.24xuexi.com/w/2011-04-23/88684.html</li>
+    <li>hive安装配置与调试: http://wenku.baidu.com/view/55485a3483c4bb4cf7ecd1eb.html</li>
+    <li>hadoop安装配置指南:http://wenku.baidu.com/view/91e0240b52ea551811a68706.html</li>
+    <li>Hadoop和Hive的数据处理流程:http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608757.html</li>
+    <li> hive数据导入: http://blog.csdn.net/yfkiss/article/details/7776406</li>
+    <li>基于Hadoop_Hive的web日志分析系统的设计: http://www.doc88.com/p-1764773680100.html</li>
+    <li>hive日志系统实战: http://wenku.baidu.com/view/7f2a7f62ddccda38376baf0e.html</li>
+    <li>hive导入</li>
+    <li>HIVE sql 学习笔记: http://blog.csdn.net/iquicksandi/article/details/8515429</li>
+</ol>
