@@ -38,6 +38,9 @@ export HADOOP_HOME=/usr</pre>
 	<dt>sqoop list-tables</dt>
 	<dd><pre>$ sqoop list-tables --connect jdbc:mysql://vm2/stats --username stats --password stats</pre></dd>
 	
+	<dt>sqoop create-hive-table</dt>
+	<dd><pre>$ sqoop create-hive-table --connect jdbc:mysql://vm2/stats --username stats --password stats</pre></dd>
+	
 	<dt>sqoop import</dt>
 	<dd>
 	  <pre>$ sqoop import \
@@ -54,6 +57,12 @@ export HADOOP_HOME=/usr</pre>
 	<dt>--hive-overwrite</dt>
 	<dt>--hive-drop-import-delims</dt>
 </dl>
+
+<h2>同步频率</h2>
+<ul>
+	<li>三个月内每天一次</li>
+	<li>一年内每周一次</li>
+</ul>
 
 <h2>参考文档</h2>
 <ul>
