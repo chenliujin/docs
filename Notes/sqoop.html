@@ -27,6 +27,11 @@ export HADOOP_HOME=/usr</pre>
 <li>桶</li>
 </ul>
 
+<h2>需要解决的问题</h2>
+<ul>
+	<li>字符串中的换行符跟sqoop的换行符重叠</li>
+</ul>
+
 <h2>Example</h2>
 <dl>
 	<dt>sqoop list-tables</dt>
@@ -34,9 +39,14 @@ export HADOOP_HOME=/usr</pre>
 	
 	<dt>sqoop import</dt>
 	<dd>
-	  <pre>$ sqoop import --direct --append --connect jdbc:mysql://vm2/stats --username stats --password stats --table wa_pv_day
+	  <pre>$ sqoop import \
+--connect jdbc:mysql://vm2/stats --username stats --password stats \
+--table wa_pv_day
 --where 'id&lt;100'
---target-dir /data/rawlog/log/zencart/orders/</pre>
+--target-dir /data/rawlog/log/zencart/orders/ \
+--fields-terminated-by '\0001' \
+--hive-drop-import-delims \
+-m 1</pre>
 	</dd>
 </dl>
 
