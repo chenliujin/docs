@@ -63,6 +63,14 @@ export HADOOP_HOME=/usr</pre>
 	</dd>
 	
 	<dt>sqoop export</dt>
+	<dd>
+	  <pre>$ sqoop export \
+  --connect jdbc:mysql://vm2/stats --username stats --password stats \
+  --table wa_countries_sales_day \
+  --export-dir /user/hive/warehouse/wa_countries_sales_day/ \
+  --input-fields-terminated-by '\0001' \
+  -m 1</pre>
+	</dd>
 	
 	<dt>--hive-import</dt>
 	<dt>--hive-overwrite</dt>
@@ -83,6 +91,7 @@ export HADOOP_HOME=/usr</pre>
 <li>定时增量导入：http://blog.csdn.net/ryantotti/article/details/14226635</li>
 <li>http://blog.csdn.net/csfreebird/article/category/2315865</li>
 <li>http://itindex.net/detail/50866-%E7%94%98%E9%81%93%E5%A4%AB-sqoop</li>
+<li>http://ylzhj02.iteye.com/blog/2054146</li>
 </ul>
 
 <p>1.sqoop: mysql -&gt; hadoop <br>
