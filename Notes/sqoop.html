@@ -63,6 +63,14 @@ export HADOOP_HOME=/usr</pre>
 	</dd>
 	
 	<dt>sqoop export</dt>
+	<dd>
+	  <pre>$ sqoop export \
+  --connect jdbc:mysql://vm2/stats --username stats --password stats \
+  --table wa_countries_sales_day \
+  --export-dir /user/hive/warehouse/wa_countries_sales_day/ \
+  --input-fields-terminated-by '\0001' \
+  -m 1</pre>
+	</dd>
 	
 	<dt>--hive-import</dt>
 	<dt>--hive-overwrite</dt>
