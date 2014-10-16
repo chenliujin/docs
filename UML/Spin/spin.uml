@@ -60,7 +60,7 @@
 <XPD:ATTR name="Left" type="integer">176</XPD:ATTR>
 <XPD:ATTR name="Top" type="integer">88</XPD:ATTR>
 <XPD:ATTR name="Width" type="integer">139</XPD:ATTR>
-<XPD:ATTR name="Height" type="integer">199</XPD:ATTR>
+<XPD:ATTR name="Height" type="integer">238</XPD:ATTR>
 <XPD:REF name="Model">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
 <XPD:OBJ name="NameCompartment" type="UMLNameCompartmentView" guid="VSTEJE5lOUC7DO9vnTuaVgAA">
 <XPD:OBJ name="NameLabel" type="LabelView" guid="i3CPjyBA7EeBanmVyI1+jgAA">
@@ -96,7 +96,7 @@
 <XPD:REF name="Views[1]">ZaG28v/QIEq/LnkGvkJU/QAA</XPD:REF>
 <XPD:REF name="Views[2]">hzbkROcWuUa+IXphDDj8ugAA</XPD:REF>
 <XPD:REF name="Views[3]">/M4hOo1sW0CFo8Zp54JimAAA</XPD:REF>
-<XPD:ATTR name="#Attributes" type="integer">12</XPD:ATTR>
+<XPD:ATTR name="#Attributes" type="integer">15</XPD:ATTR>
 <XPD:OBJ name="Attributes[0]" type="UMLAttribute" guid="l961yQxvK0GBr9PuFwDHzwAA">
 <XPD:ATTR name="Name" type="string">GetUserEventInfo</XPD:ATTR>
 <XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
@@ -129,28 +129,43 @@
 <XPD:ATTR name="Visibility" type="UMLVisibilityKind">vkPrivate</XPD:ATTR>
 <XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
 </XPD:OBJ>
-<XPD:OBJ name="Attributes[7]" type="UMLAttribute" guid="tPWFo1c9d0uWBnoc4nsq/wAA">
-<XPD:ATTR name="Name" type="string">play</XPD:ATTR>
+<XPD:OBJ name="Attributes[7]" type="UMLAttribute" guid="bisa6JcFtEugOs3CdaNdCwAA">
+<XPD:ATTR name="Name" type="string">ininCustomersEventInfo</XPD:ATTR>
 <XPD:ATTR name="Visibility" type="UMLVisibilityKind">vkPrivate</XPD:ATTR>
 <XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="Attributes[8]" type="UMLAttribute" guid="rwdoVtDkPk6FJuqnPhmHpQAA">
-<XPD:ATTR name="Name" type="string">getPrizes</XPD:ATTR>
+<XPD:ATTR name="Name" type="string">initDrawPrize</XPD:ATTR>
 <XPD:ATTR name="Visibility" type="UMLVisibilityKind">vkPrivate</XPD:ATTR>
 <XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
 </XPD:OBJ>
-<XPD:OBJ name="Attributes[9]" type="UMLAttribute" guid="Gz19X4vyWUCNsZcxEZ9w5AAA">
+<XPD:OBJ name="Attributes[9]" type="UMLAttribute" guid="d2qHEHnrnk2JL/37ALbQjgAA">
+<XPD:ATTR name="Name" type="string">initDrawPrizeWin</XPD:ATTR>
+<XPD:ATTR name="Visibility" type="UMLVisibilityKind">vkPrivate</XPD:ATTR>
+<XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
+</XPD:OBJ>
+<XPD:OBJ name="Attributes[10]" type="UMLAttribute" guid="Gz19X4vyWUCNsZcxEZ9w5AAA">
 <XPD:ATTR name="Name" type="string">getUserEventLevel</XPD:ATTR>
 <XPD:ATTR name="Visibility" type="UMLVisibilityKind">vkPrivate</XPD:ATTR>
 <XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
 </XPD:OBJ>
-<XPD:OBJ name="Attributes[10]" type="UMLAttribute" guid="vZ/96dRMTUKDZqEWQChppQAA">
+<XPD:OBJ name="Attributes[11]" type="UMLAttribute" guid="vZ/96dRMTUKDZqEWQChppQAA">
 <XPD:ATTR name="Name" type="string">getUserConsecutiveDays</XPD:ATTR>
 <XPD:ATTR name="Visibility" type="UMLVisibilityKind">vkPrivate</XPD:ATTR>
 <XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
 </XPD:OBJ>
-<XPD:OBJ name="Attributes[11]" type="UMLAttribute" guid="bHkV+m1uaES47JZcgp+5MQAA">
+<XPD:OBJ name="Attributes[12]" type="UMLAttribute" guid="bHkV+m1uaES47JZcgp+5MQAA">
 <XPD:ATTR name="Name" type="string">getUserChance</XPD:ATTR>
+<XPD:ATTR name="Visibility" type="UMLVisibilityKind">vkPrivate</XPD:ATTR>
+<XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
+</XPD:OBJ>
+<XPD:OBJ name="Attributes[13]" type="UMLAttribute" guid="tPWFo1c9d0uWBnoc4nsq/wAA">
+<XPD:ATTR name="Name" type="string">play</XPD:ATTR>
+<XPD:ATTR name="Visibility" type="UMLVisibilityKind">vkPrivate</XPD:ATTR>
+<XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
+</XPD:OBJ>
+<XPD:OBJ name="Attributes[14]" type="UMLAttribute" guid="Uh1o/eHrUE2+Zc7RRtvugwAA">
+<XPD:ATTR name="Name" type="string">playLog</XPD:ATTR>
 <XPD:ATTR name="Visibility" type="UMLVisibilityKind">vkPrivate</XPD:ATTR>
 <XPD:REF name="Owner">2sVOJBu6S0aPFRH4qaGjeAAA</XPD:REF>
 </XPD:OBJ>
