@@ -1,0 +1,62 @@
+1.draw_prize_{$group}
+2.draw_prize_{$group}_win_{$prize_id}
+
+
+Lottery:
+1.checkEventTime
+2.checkLogin
+3.checkChance
+4.GetDrawPrize
+
+5.限制
+  * 每个用户只能用一次实物奖品
+  * 用抽奖券的用户不能抽中实物奖品 
+
+6.抽奖
+  * 忽略虚拟奖品
+  * 如果是抽奖券，忽略实物奖品
+  * 判定用户是否中过实物奖品，是则忽略实物奖品
+  * 判定实物奖品派发频率，超过则忽略实物奖品
+	活动持续天数：21
+        a1 奖品总数：63
+        b1 每天：63/21 = 3个
+	c1 剩余: 63/21 * 当前持续天数 - 已中次数
+           第一天：63/21 * 1 - 0 = 3
+	   第二天：63/21 * 2 - 3 = 3
+
+        
+        a1 奖品总数10
+        b1.每天: 10/21 = 0.476
+           第一天：10/21 * 1 - 0 = 0.476
+           第二天：10/21 * 1 - 0 = 0.95 取整到1
+
+
+
+
+  * 实物
+    * 前半场30%，后半场不限制
+
+   * 按概率派奖
+
+7.虚拟奖品
+
+8.中奖邮件
+  * 折扣码
+  * 实物奖品
+  > 抽奖券不用发送邮件
+
+9 DB
+  * draw_customers
+  * coupons_from_random
+
+
+10 Redis 
+  * draw_prize_{$group_id}
+  * draw_prize_win_{$prize_id}
+    1
+  * lottery_draw_customers
+  * lottery_draw_customers_{$customers_id} :: LIST
+    {
+	{draw_id, prize_id},
+	{draw_id, prize_id}
+    }
