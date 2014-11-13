@@ -8,11 +8,7 @@ Lottery:
 3.checkChance
 4.GetDrawPrize
 
-5.限制
-  * 每个用户只能用一次实物奖品
-  * 用抽奖券的用户不能抽中实物奖品 
-
-6.抽奖
+5.抽奖
   * 忽略虚拟奖品
   * 如果是抽奖券，忽略实物奖品
   * 判定用户是否中过实物奖品，是则忽略实物奖品
@@ -38,19 +34,21 @@ Lottery:
 
    * 按概率派奖
 
-7.虚拟奖品
+6.虚拟奖品
 
-8.中奖邮件
+7.中奖邮件
+	$draw_prize->prize_type
   * 折扣码
   * 实物奖品
-  > 抽奖券不用发送邮件
+  * 神秘礼物
+  * 抽奖券不用发送邮件,要检查是否增加抽奖次数
 
-9 DB
+8 DB
   * draw_customers
   * coupons_from_random
 
 
-10 Redis 
+9 Redis 
   * draw_prize_{$group_id}
   * draw_prize_win_{$prize_id}
     1
@@ -60,3 +58,9 @@ Lottery:
 	{draw_id, prize_id},
 	{draw_id, prize_id}
     }
+
+
+10 用例
+  * 扣减抽奖次数(抽奖券改状态，订单记日志)
+  * 每个用户只能中一次实物奖品
+  * 用抽奖券的用户不能抽中实物奖品 
