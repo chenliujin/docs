@@ -1,3 +1,4 @@
-1.Ganglia
-2.Redis
-3.XCache
+* Ganglia
+* Redis
+* Solr
+* XCache
