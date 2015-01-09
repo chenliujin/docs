@@ -1,4 +1,40 @@
-<h1>编译</h1>
+<h1>maven</h1>
+<h2>1. 生成骨架</h2>
+<pre>$ mvn archetype:generate</pre>
+
+<h2>2. pom.xml</h2>
+<pre>&lt;dependencies&gt;
+    &lt;dependency&gt;<br>        &lt;groupId&gt;org.drools&lt;/groupId&gt;<br>        &lt;artifactId&gt;drools-core&lt;/artifactId&gt;<br>        &lt;version&gt;5.5.0.Final&lt;/version&gt;<br>    &lt;/dependency&gt;
+    &lt;dependency&gt;<br>        &lt;groupId&gt;org.drools&lt;/groupId&gt;<br>        &lt;artifactId&gt;drools-compiler&lt;/artifactId&gt;<br>        &lt;version&gt;5.5.0.Final&lt;/version&gt;<br>    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</pre>
+
+<h2>3. NetBeans </h2>
+<ol>
+	<li>新建项目 -> 类别：Maven -&gt; 项目：Java应用程序</li>
+    <li>Hibernate
+		<ul>
+			<li>窗口 -&gt; 服务 -&gt; 数据库 -&gt; 新建连接 -&gt; 驱动程序：MySQL</li>
+		    <li>新建 -> 类别：Hibernate -> Hibernate 配置向导</li>
+		    <li>新建 -> 类别：Hibernate -> Hibernate 逆向工程向导 -&gt; 文件夹：src\main\resources -&gt; 选择需要的表：affiliate，affiliate_history</li>
+		    <li>新建 -> 类别：Hibernate -> 通过数据库生成 Hibernate 映射文件和 POJO </li>
+		</ul>
+	</li>
+</ol>
+
+<h2>4. 规则定义(rule.drl)</h2>
+<pre>
+import com.tinydeal.affiliate.Affliate; #需要包含需要使用的POJO
+
+rule 'r1'
+    when
+	    $aff:Affiliate(status == 1);
+	then
+	    System.out.println($aff.getId());
+end	
+</pre>
+
+<h2>5. 编译</h2>
 <pre>
 $ mvn install
 $ mvn test
