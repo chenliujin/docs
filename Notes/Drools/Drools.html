@@ -34,6 +34,25 @@ rule 'r1'
 end	
 </pre>
 
+<h1>”Ô∑®</h1>
+<h2>1.memberOf</h2>
+<pre>
+rule "name"
+	when
+		$customers : Customers();
+		$order : Orders(customersId memberOf $customers.customersId);
+	then
+end
+
+=&gt;
+
+rule &quot;name&quot;
+	when
+		$customers : Customers();
+		$order : Orders(customersId == $customers.customersId);
+	then
+end</pre>
+
 <h2>5. ±‡“Î</h2>
 <pre>
 $ mvn install
