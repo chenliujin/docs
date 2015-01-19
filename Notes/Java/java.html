@@ -1,0 +1,12 @@
+<h1>List</h1>
+<pre>class Person{<br>   .....<br>}<br>上面定义了一个Person类，下面看好如何使用List<br>Person p1=new Person();<br>Person p2=new Person();<br>List list=new ArrayList();<br>list.add(p1);<br>list.add(p2); //这里是将对象加入到list中<br>for(int i=0;i&lt;list.size();i++){ //利用循环，将person对象全部一一取出<br>    Person p=(Person)list.get(i);//注意，这里一定要强制类型转换，因为List中取出的对象都是Object类型的，希望对你有所帮助<br>    <br>}</pre>
+
+<h1>Date</h1>
+<pre>import  java.util.Date;  
+import  java.text.DateFormat;  
+import  java.text.SimpleDateFormat;     
+<br> 
+Date dt = new  Date(); // 如果不需要格式,可直接用dt,dt就是当前系统时间  
+DateFormat df  = new  SimpleDateFormat( " yyyy/MM/dd HH:mm:ss " ); // 设置显示格式  
+String nowTime = "" ;  
+nowTime =  df.format(dt); // 用DateFormat的format()方法在dt中获取并以yyyy/MM/dd HH:mm:ss格式显示</pre>
