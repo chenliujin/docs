@@ -789,8 +789,12 @@ $ wget -r -N -l DEPTH URL</pre>
 <p>-r：递归<br />-N: 允许对文件使用时间戳<br />-l DEPTH：指定页面层级</p>
 <h3>* 访问需要认证的 HTTP 或 FTP 页面</h3>
 <pre>$ wget --user username --password pass URL</pre>
+
 <h2>rsync</h2>
 <pre>
+$ yum install -y sshpass
+$ rsync -avRz --rsh="sshpass -p 'password' ssh -p 52254" source target
+
 $ rsync -av source_path destination_path
 $ rsync -av source_path username@host:PATH
 $ rsync -avz source username@host:PATH #压缩传输
