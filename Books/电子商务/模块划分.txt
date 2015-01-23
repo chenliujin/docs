@@ -1,0 +1,45 @@
+* landing page
+  * 首页
+  * 分类页（列表页）
+    * Cell Phones
+    * Tablet PCs
+  * Recmmended（Hot）
+  * New
+  * 
+
+* 详情页
+  * 产品属性
+  * 产品图片
+  * 产品描述
+  * 产品数量
+  * 产品价格
+    * 汇率
+  * 多语言
+
+* 购物车 shopping_cart
+
+* 订单 order
+
+* 支付
+  * 支付方式
+  * 运输方式
+    * 国家
+
+* 注册
+  * customers
+
+* 登陆
+
+
+* 搜索
+* 客服
+
+
+
+Cache
+Redis
+Session
+PHP + MySQL
+Nginx
+
+
