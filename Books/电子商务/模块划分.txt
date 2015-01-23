@@ -1,8 +1,15 @@
 * landing page
   * 首页
-  * 分类页（列表页）
+    * Best Sellers
+    * 秒杀
+    * New Products
+    * Hot Products
+
+  * 分类页
     * Cell Phones
     * Tablet PCs
+    * Tag
+
   * Recmmended（Hot）
   * New
   * 
@@ -15,6 +22,8 @@
   * 产品价格
     * 汇率
   * 多语言
+  * 配件
+  * 评论
 
 * 购物车 shopping_cart
 
@@ -32,7 +41,12 @@
 
 
 * 搜索
+  * keyword
+
 * 客服
+
+* 折扣码
+* 后台管理
 
 
 
