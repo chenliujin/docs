@@ -61,6 +61,33 @@ rule &quot;name&quot;
 	then
 end</pre>
 
+<h2>accumulate</h2>
+<pre>rule "ot_coupon_false"
+    salience 20
+    when
+        //$affiliate_history : AffiliateHistory();
+        //$affiliate : Affiliate();
+        //$order : Order();
+        accumulate(
+            OrdersProducts(productsPrice == finalPrice, $points : (finalPrice * productsQuantity * 0.5));
+            $points_normal : sum($points)
+        );
+        accumulate(
+            OrdersProducts(productsPrice != finalPrice, $points : (finalPrice * productsQuantity * 0.2));
+            $points_special : sum($points)
+        );
+    then
+        //customers_points
+        System.out.println("points_normal£º" + $points_normal);
+        System.out.println("points_special£º" + $points_special);
+
+        //affiliate
+        //affiliate_history
+
+        //order finished
+        //retract($order);
+end</pre>
+
 <h1>²Î¿¼ÎÄÏ×</h1>
 <ul>
 	<li>
