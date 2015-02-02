@@ -2,7 +2,12 @@
 <pre>class Person{<br>   .....<br>}<br>上面定义了一个Person类，下面看好如何使用List<br>Person p1=new Person();<br>Person p2=new Person();<br>List list=new ArrayList();<br>list.add(p1);<br>list.add(p2); //这里是将对象加入到list中<br>for(int i=0;i&lt;list.size();i++){ //利用循环，将person对象全部一一取出<br>    Person p=(Person)list.get(i);//注意，这里一定要强制类型转换，因为List中取出的对象都是Object类型的，希望对你有所帮助<br>    <br>}</pre>
 
 <h1>Date</h1>
-<h2>now</h2>
+<h2>获取系统当前时间</h2>
+<pre>
+Date dt = new Date();
+dt.getTime();
+dt.getTime() + 30 * 24 * 60 * 60 * 1000;
+</pre>
 <pre>import  java.util.Date;  
 import  java.text.DateFormat;  
 import  java.text.SimpleDateFormat;     
@@ -12,6 +17,14 @@ DateFormat df  = new  SimpleDateFormat( " yyyy/MM/dd HH:mm:ss " ); // 设置显示格
 String nowTime = "" ;  
 nowTime =  df.format(dt); // 用DateFormat的format()方法在dt中获取并以yyyy/MM/dd HH:mm:ss格式显示</pre>
 
+<h2>转 Calender</h2>
+<pre>Date date = new Date();
+<br />
+Calendar cal = Calendar.getInstance();
+cal.setTime(date);
+</pre>
+
+<h1>Calender</h1>
 <h2>-1 month</h2>
 <pre>SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); 
 Date dateNow = new Date(); 
@@ -25,6 +38,11 @@ cl.setTime(dateNow);
 Date dateFrom = cl.getTime(); 
 System.out.println(sdf.format(dateFrom)+"到"+sdf.format(dateNow));
 
+</pre>
+
+<h2>转 Date</h2>
+<pre>Calendar cal = Calendar.getInstance();
+Date date = cal.getTime();
 </pre>
 
 <h1>判断变量类型</h1>
