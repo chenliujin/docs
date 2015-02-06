@@ -88,6 +88,30 @@ end</pre>
         //retract($order);
 end</pre>
 
+<h1>Hibernate</h1>
+<pre>
+static SessionFactory sessionFactory = null;
+static{
+    sessionFactory = new Configuration().configure().buildSessionFactory();
+}
+session =sessionFactory.openSession();
+ksession.setGlobal("hibernateSession", session);
+
+package drools
+//list any import classes here.
+import droolsexec.Contact;
+//declare any global variables here
+global org.hibernate.Session hibernateSession;
+rule "Name"
+dialect "java" 
+when
+// message: Message( status =="GOODBYE" )
+contact: Contact() from hibernateSession.createQuery("from Contact").list();
+then
+System.out.println( contact.getFirstName()); 
+end
+</pre>
+
 <h1>╡н©╪ндов</h1>
 <ul>
 	<li>
