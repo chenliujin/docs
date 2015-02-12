@@ -36,4 +36,13 @@ class categories
 			WHERE cd.language_id=" . (int)$language_id . "
 			ORDER BY c.parent_id, c.sort_order, cd.categories_name";
 	}
+	
+	/**
+	 * @author chenliujin <liujin.chen@qq.com>
+	 * @since 2015-02-12
+	 */
+	static public function getCategoryMenu()
+	{
+		
+	}
 }
