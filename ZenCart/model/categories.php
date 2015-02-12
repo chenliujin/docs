@@ -1,11 +1,21 @@
 <?php
 class categories
 {
+	/**
+	 * @author chenliujin <liujin.chen@qq.com>
+	 * @since 2015-02-12
+	 * @return string
+	 */
 	static public function getTableName()
 	{
 		return 'categories';
 	}
 	
+	/**
+	 * @author chenliujin <liujin.chen@qq.com>
+	 * @since 2015-02-12
+	 * @param type $language_id
+	 */
 	static public function getAll($language_id)
 	{		
 		$sql = "
