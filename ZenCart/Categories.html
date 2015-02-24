@@ -1,0 +1,38 @@
+<h1>Files</h1>
+<ul>
+	<li>includes/classes/category_tree.php</li>
+</ul>
+
+<h1>Data</h1>
+<h2>Params</h2>
+<ul>
+	<li>$language_id: $_SESSION['language_id']</li>
+	<li>$categories_status: 1</li>
+</ul>
+<h2>Format</h2>
+<pre>
+$category_tree = array(
+	'$categories_id' => array(
+		$categories_id,
+		$categories_name,
+		$parent_id,
+		$stand_out,
+		$level,
+		$products_quantity,
+		$categories_image,
+	),
+	'$categories_id' => array(
+	),
+);
+
+$category_parent_tree = array(
+	'$parent_id' => array(
+		$categories_id,
+		$categories_id,
+	),
+	'$parent_id' => array(
+		$categories_id,
+		$categories_id,
+	),
+);	
+</pre>
