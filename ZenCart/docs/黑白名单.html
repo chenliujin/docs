@@ -13,22 +13,29 @@
 	<li>country_restrict</li>
 </ul>
 
-<h1>是否启用</h1>
+<h1>是否启用国家黑白名单</h1>
+<p>判断目录是否有国家黑白名单限制？需重新确认！</p>
 
 <h1>规则</h1>
 <h2>老客户（$_COOKIE['right'] == 1） & VIP（$_COOKIE['right'] == 2）</h2>
 <ul>
 	<li>不限制任何国家：country_restrict IS NULL</li>
-	<li>如果该国家设为白名单，客户地址也属于白名单国家：white_or_black = 1 and country_restrict like '%{$country_code}%'</li>
-	<li>如果设了白名单，其它国家的大客户可见：white_or_black = 1 and big_customer_country IS NOT NULL（需确认，未发现有设置 big_customer_country）</li>
-	<li>如果设了黑名单，并且这个国家的大客户都不可见面，则其它国家的普通客户和大客户都可见</li>
-	<li>如果设了黑名单，又在黑名单里面添加了白名单，则这个国家的大客户可见</li>
+	<li>如果设为白名单，则国家限制名单属于白名单，这些国家可见，需判定客户所在国家是否属于这些国家：white_or_black = 1 and country_restrict like '%{$country_code}%'</li>
+	<li>如果设为白名单，大客户国家不受白名单限制：white_or_black = 1 and big_customer_country IS NOT NULL（需确认，未发现有设置 big_customer_country）</li>
+	<li>如果设为黑名单，则国家限制名单属于黑名单，这些国家不可见，其它国家可见：white_or_black = 0 and country_restrict NOT LIKE '%{$country_code}%'</li>
+	<li>如果设为黑名单，大客户国家不受黑名单限制：white_or_black = 0 AND big_customer_country LIKE '%{$country_code}%'</li>
 </ul>
 
 <h2>Other（empty($_COOKIE['right'])）</h2>
+<ul>
+	<li>不限制任何国家：country_restrict IS NULL</li>
+	<li>如果设为白名单，则国家限制名单属于白名单，这些国家可见，需判定客户所在国家是否属于这些国家：white_or_black = 1 and country_restrict like '%{$country_code}%'</li>
+	<li>如果设为黑名单，则国家限制名单属于黑名单，这些国家不可见，其它国家可见：white_or_black = 0 and country_restrict NOT LIKE '%{$country_code}%'</li>
+</ul>
 
 <h1>API</h1>
 <h2>functions_general.php</h2>
 <ul>
 	<li>function get_products_status_sql()</li>
+	<li>function country_filter_restriction</li>
 </ul>
