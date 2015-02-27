@@ -17,7 +17,13 @@
 	<li>function getProductZonePrice($pm_id, $country_code)
 		<pre>
 return array(
-	'td_points' => array('price' => $price),
+	'normal'	=> array(
+		'price'		=> $price
+	),
+	'td_points' => array(
+		'price'		=> $price,
+		'points'	=> $points,
+	),
 );			
 		</pre>
 	</li>
@@ -25,5 +31,7 @@ return array(
 
 <h2>functions_prices.php</h2>
 <ul>
-	<li>function zen_get_products_spcial_points_price()</li>
+	<li>function zen_get_products_spcial_points_price()：积分换购价</li>
+	<li>function zen_get_products_special_price：需重新确认里面的逻辑！</li>
+	<li>function zen_get_products_price_is_free</li>
 </ul>
