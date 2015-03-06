@@ -1,0 +1,5 @@
+<h1>注意事项</h1>
+<ul>
+	<li>SetCookie()之前不能有任何html输出，就是空格，空白行都不行。</li>
+	<li>SetCookie()后，你在当前页调用echo $_COOKIE["name"]不会有输出。必须刷新或到下一个页面在过期之前才可以看到Cookie值。</li>
+</ul>
