@@ -9,5 +9,32 @@
 4)  运费 = (基本运费 + 附加费) * 折扣	
 </pre>
 
-<h1>排序</h1>
-<p>按运费从低到高排序</p>
+<h1>逻辑</h1>
+<pre>
+Transportations
+* getTableName()
+* getPrimaryKey()
+* getAll()
+
+Transportation
+* getAll() //获取所有的运输方式
+* getTransportations($products, $country_code, $language_id) //获取产品支持的运输方式 
+  * filterForeignProducts() //海外仓产品包邮，需去除
+  * checkCountryLimit()
+  * checkCategoryLimit()
+  * checkWeightAndVolumnLimit()
+* getCost //计算运费
+* checkCountryLimit() //国家黑白名单
+* checkCategoryLimit() //分类限制
+* checkWeightAndVolumnLimit() //重量和体积限制
+* checkTransportationLimit() //运输限制，如不可带电
+  * checkProductTransportationLimit()
+</pre>
+
+<h1>需求</h1>
+<ul>
+	<li>国家黑白名单：运输方式支持（或不支持）的国家如何判定？</li>
+	<li>偏远地区</li>
+	<li>禁运产品黑名单：液体、电池，提示用户，并且用户可以看到该运输方式，但是不能选择</li>
+	<li>按运费从低到高排序</li>
+</ul>
