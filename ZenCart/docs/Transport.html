@@ -17,16 +17,43 @@ Transportations
 * getAll()
 
 Transportation
-* getAll() //获取所有的运输方式
-* getTransportations($products, $country_code, $language_id) //获取产品支持的运输方式 
-  * filterForeignProducts() //海外仓产品包邮，需去除
-  * checkCountryLimit()
-  * checkCategoryLimit()
-  * checkWeightAndVolumnLimit()
-* getCost //计算运费
-* checkCountryLimit() //国家黑白名单
-* checkCategoryLimit() //分类限制
-* checkWeightAndVolumnLimit() //重量和体积限制
+	* getAll() //获取所有的运输方式
+	* getTransportations($products, $country_code, $language_id) //获取产品支持的运输方式 
+		* filterForeignProducts() //海外仓产品包邮，需去除
+		* checkCountryLimit() //国家黑白名单
+		* checkWarehouse() //仓库限制
+			* warehouse_id 从产品型号（ATF-12928-AU）获取，默认仓库（CNSZ）
+			* 所有产品是否属于同一个仓库
+		* checkCategoryLimit() //分类限制
+			* 属于快递并设置了分类限制
+		* checkWeightAndVolumnLimit() //重量和体积限制
+			* if $products->products_weight > $transportation->weight_limit then ignore this transportation (应该比较的是总重量，此处比较的是单个产品的重量)
+			* if SUM($products->products_weight) > $transportation->weight_limit then ignore this transportation
+			* if SUM($products->products_weight) < $transportation->min_weight then ignore this transportation
+		* checkTypeOfTransportation
+			* exists $products->shipping_type == 3
+			* if $this->type_of_transportation !=2 then ignore this transportation //超重产品必须使用快递
+		* getCost //计算运费
+			* 快递：	$cost = 快递运费 - 默认无挂号运费 - 默认挂号运费 
+				* 快递运费：
+				* 无挂号运费：$transportation->warehouse_id = 快递运输->warehouse_id && $transportation->default_free && $transportation->type_of_transportation =1
+				* 挂号运费：$transportation->warehouse_id = 快递运输->warehouse_id && $transportation->default_free && $transportation->type_of_transportation =0
+			* 无挂号：
+				* $this->type_of_transportation == '1' //运输方式无挂号
+				* if $this->shipfree == 1 then $cost = 0; //免运费
+				* $cost = 无挂号运费 - 默认无挂号运费 - 默认挂号运费
+			* 挂号：
+				* $this->type_of_transportation == '0' //挂号
+					* $this->shipfree == 1 //免运费
+						* if $this->warehouse_id == 1 then $cost = 0 //SZ仓
+						* if 无挂号产品总金额占比 < 20% then $cost = 0
+					* $cost = 挂号运费 - 默认无挂号运费 - 默认挂号运费
+						* $this->warehouse_id == 1 //SZ仓
+						* SUM($products->final_price) >= 120
+						* if $cost < SUM($products->final_pirce) * 0.1 && USD(SUM($products->final_pirce)) >= 33 USD then $cost = 0 else $cost = $cost - SUM($products->final_price) * 0.05 endif //挂号费小于总价的10%时，免挂号费，否则给予订单5%优惠
+						* if USD(SUM($products->final_pirce)) >= 250 USD then $cost = 0
+		* enhancement
+			* exists 快递运费 = 0 || 挂号运费 = 0 then remove 无挂号运输方式
 * checkTransportationLimit() //运输限制，如不可带电
   * checkProductTransportationLimit()
 </pre>
