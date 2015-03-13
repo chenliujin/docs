@@ -27,13 +27,12 @@ Transportation
 		* checkCategoryLimit() //分类限制
 			* 属于快递并设置了分类限制
 		* checkWeightAndVolumnLimit() //重量和体积限制
-			* if $products->products_weight > $transportation->weight_limit then ignore this transportation (应该比较的是总重量，此处比较的是单个产品的重量)
-			* if SUM($products->products_weight) > $transportation->weight_limit then ignore this transportation
+			* if $products->products_weight > $transportation->weight_limit then ignore this transportation (单个产品不能超重，总重超重自动分包计费)
 			* if SUM($products->products_weight) < $transportation->min_weight then ignore this transportation
 		* checkTypeOfTransportation
 			* exists $products->shipping_type == 3
 			* if $this->type_of_transportation !=2 then ignore this transportation //超重产品必须使用快递
-		* getCost //计算运费
+		* getTotalCost //计算运费
 			* 快递：	$cost = 快递运费 - 默认无挂号运费 - 默认挂号运费 
 				* 快递运费：
 				* 无挂号运费：$transportation->warehouse_id = 快递运输->warehouse_id && $transportation->default_free && $transportation->type_of_transportation =1
@@ -54,14 +53,37 @@ Transportation
 						* if USD(SUM($products->final_pirce)) >= 250 USD then $cost = 0
 		* enhancement
 			* exists 快递运费 = 0 || 挂号运费 = 0 then remove 无挂号运输方式
-* checkTransportationLimit() //运输限制，如不可带电
-  * checkProductTransportationLimit()
+	* checkTransportationLimit() //运输限制，如不可带电
+		* checkProductTransportationLimit()
+		* 提示用户，并且用户可以看到该运输方式，但是不能选择
+	* getNonRegistedProductsRatio() //计算无挂号产品金额占比
+	* getCost
+		* $this->as_volunm_weight == 1 //按体积重计费
+			* if $volumn_weight > $weight then $weight = $volumn_weight; //如果体积重大于实际重量，则按体积重计费
+		* 计价方式1（$this->calculate_method == 0）：首重费用 + 续重费用
+			* 首重：$this->the_first_re
+			* 首重费用：$transportations_zones->the_first_re_charges_items
+			* 续重：$this->continued_heavy
+			* 续重费用：$transportations_zones->continued_heavy_charges
+			* if 重量 <= 首重 then 运费 = 首重费用
+			* if 重量 >  首重 then 运费 = 首重费用 + ceil((重量 - 首重) / 续重) * 续重费用
+		* 计价方式2（$this->calculate_method != 0）：按百分比计费
+			* if 重量 <= 首重 then 运费 = 起步价
+			* if 重量 >  首重 then 运费 = ceil(重量 / 单位重量（如按每100克收费)) * 单位重量价格
+		* 偏远地区附加费：检查 DHL 的偏远地区
+		* 附加费
+			* 挂号费
+			* 燃油附加费
+		* 折扣：$this->discount
+			* $cost = $cost * 折扣
+	* 分包
+		* 总重量超出运输方式的最大重量限制时进行分包处理，如一个包裹超重，分两个包裹，每个包裹都不超重，然后计算总价
 </pre>
 
 <h1>需求</h1>
 <ul>
 	<li>国家黑白名单：运输方式支持（或不支持）的国家如何判定？</li>
 	<li>偏远地区</li>
-	<li>禁运产品黑名单：液体、电池，提示用户，并且用户可以看到该运输方式，但是不能选择</li>
+	<li>禁运产品：液体、电池</li>
 	<li>按运费从低到高排序</li>
 </ul>
